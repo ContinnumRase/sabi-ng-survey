@@ -1,0 +1,815 @@
+<!doctype html>
+<html lang="fil">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sabi ng Survey! Filipino Family Feud</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Rubik:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --night:#0f1b5e; --night2:#1b2c86; --deep:#08103f;
+  --sun:#ffc61a; --sun-dk:#c48d00; --red:#e3342f; --red-dk:#a61f1b;
+  --cream:#fff6e3; --ink:#0f1b5e; --sky:#5b93ff; --leaf:#1bb56f;
+  --muted:#b8c3ff; --line:rgba(255,255,255,.16); --panel:rgba(8,16,63,.55);
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){ --night:#0c1652; --night2:#172677; --deep:#060c33; }
+}
+:root[data-theme="dark"]{ --night:#0c1652; --night2:#172677; --deep:#060c33; }
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{
+  background:var(--night);color:var(--cream);
+  font-family:'Rubik',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:17px;line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+}
+body::before{
+  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    repeating-conic-gradient(from 0deg at 50% -8%, rgba(255,198,26,.075) 0deg 5deg, transparent 5deg 10deg),
+    radial-gradient(ellipse 90% 70% at 50% -8%, var(--night2), var(--night) 55%, var(--deep));
+}
+.disp{font-family:'Bungee','Arial Black',Impact,sans-serif;font-weight:400;letter-spacing:.01em}
+.bunting{display:block;width:100%;height:46px}
+main{max-width:1180px;margin:0 auto;padding:8px 20px 40px}
+button{font:inherit;color:inherit;cursor:pointer}
+button:disabled{cursor:default}
+:focus-visible{outline:3px solid var(--sun);outline-offset:3px}
+
+/* buttons */
+.btn{
+  background:var(--sun);color:var(--ink);border:0;border-radius:14px;
+  padding:14px 26px;font-family:'Bungee','Arial Black',sans-serif;font-size:19px;
+  box-shadow:0 5px 0 var(--sun-dk);transition:transform .08s,box-shadow .08s;
+}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--sun-dk)}
+.btn:disabled{opacity:.5}
+.btn.xl{font-size:26px;padding:18px 40px}
+.btn.block{width:100%}
+.ghost{background:transparent;border:2px solid var(--line);border-radius:12px;padding:10px 16px;font-weight:500;color:var(--cream)}
+.ghost:hover{border-color:var(--muted)}
+.link{background:none;border:0;padding:0;color:var(--sun);text-decoration:underline;text-underline-offset:3px;font-size:15px}
+
+/* host bar */
+.bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:6px 0 18px}
+.brand{font-size:20px;color:var(--sun)}
+.pill{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:4px 14px;font-weight:500;font-size:15px}
+.pill:empty{display:none}
+.tools{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+
+.stage{display:flex;flex-direction:column;gap:22px}
+.center{align-items:center;text-align:center}
+.logo{font-size:clamp(54px,10vw,128px);line-height:.92;margin:10px 0 0;color:var(--sun);
+  text-shadow:0 6px 0 var(--red),0 12px 0 rgba(0,0,0,.25)}
+.logo.sm{font-size:44px;text-shadow:0 4px 0 var(--red)}
+.lede{font-size:clamp(18px,2vw,24px);max-width:36ch;margin:0;color:var(--cream)}
+.joined{display:flex;align-items:baseline;gap:12px;font-size:22px}
+.big-n{font-size:64px;color:var(--sun);line-height:1}
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:980px}
+.chip{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-weight:500;font-size:16px}
+.chip.on{background:var(--leaf);border-color:var(--leaf);color:#fff}
+.chip.x{background:rgba(227,52,47,.18);border-color:rgba(227,52,47,.55)}
+button.chip.x:hover{background:rgba(227,52,47,.35)}
+.warn{background:rgba(227,52,47,.2);border:1px solid var(--red);border-radius:12px;padding:12px 18px;margin:0}
+.hint{color:var(--muted);font-size:15px}
+
+.question{font-size:clamp(26px,3.6vw,46px);font-weight:800;line-height:1.15;margin:0;max-width:26ch;text-wrap:balance}
+.center .question{margin-inline:auto}
+.question.sm{font-size:24px;max-width:none}
+.qmeta:empty{display:none}
+.dbl{display:inline-block;background:var(--red);color:#fff;border-radius:10px;padding:6px 14px;font-size:20px;transform:rotate(-2deg)}
+.count{font-size:22px;margin:0}
+.count b{color:var(--sun);font-size:30px}
+.qrow{display:flex;gap:28px;align-items:center;justify-content:center;flex-wrap:wrap}
+
+/* timer */
+.timer{position:relative;width:96px;height:96px;flex:none}
+.timer.big{width:150px;height:150px}
+.timer svg{width:100%;height:100%;transform:rotate(-90deg)}
+.timer circle{fill:none;stroke-width:9}
+.timer .trk{stroke:rgba(255,255,255,.12)}
+.timer .arc{stroke:var(--sun);stroke-linecap:round;stroke-dasharray:100;transition:stroke-dashoffset .25s linear}
+.timer.low .arc{stroke:var(--red)}
+.timer span{position:absolute;inset:0;display:grid;place-items:center;font-family:'Bungee',sans-serif;font-size:34px}
+.timer.big span{font-size:54px}
+
+/* board */
+.board{display:grid;gap:12px;width:100%;max-width:1040px;margin:0 auto}
+.board.two{grid-auto-flow:column;grid-template-columns:1fr 1fr}
+.tile{perspective:900px;height:78px;border:0;padding:0;background:none;display:block;width:100%;text-align:left}
+.board.mini .tile{height:54px}
+.tile-in{position:relative;display:block;height:100%;transform-style:preserve-3d;transition:transform .65s cubic-bezier(.3,1.4,.5,1)}
+.tile.open .tile-in{transform:rotateX(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:14px;display:flex;align-items:center}
+.front{background:linear-gradient(#2c42b0,#18287e);border:3px solid #4560e0;box-shadow:inset 0 -7px 0 rgba(0,0,0,.28);justify-content:center}
+button.tile:not(:disabled):hover .front{border-color:var(--sun)}
+.num{width:50px;height:50px;border-radius:50%;background:var(--sun);color:var(--ink);font-family:'Bungee',sans-serif;font-size:28px;display:grid;place-items:center;box-shadow:0 3px 0 var(--sun-dk)}
+.mini .num{width:34px;height:34px;font-size:18px}
+.back{transform:rotateX(180deg);background:var(--cream);color:var(--ink);border:3px solid var(--sun);overflow:hidden}
+.back .t{flex:1;min-width:0;padding:0 16px 0 20px;font-family:'Bungee',sans-serif;font-size:clamp(17px,2.1vw,27px);line-height:1.05;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mini .back .t{font-size:15px;padding-left:12px}
+.back .c{font-size:14px;font-weight:700;color:#4a56a0;padding-right:12px;white-space:nowrap}
+.back .p{align-self:stretch;min-width:88px;display:grid;place-items:center;background:var(--red);color:#fff;font-family:'Bungee',sans-serif;font-size:30px}
+.mini .back .p{min-width:56px;font-size:19px}
+
+.wrong{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px 18px;width:100%;max-width:1040px;margin:0 auto}
+.wrong h3{margin:0 0 10px;font-size:18px;font-weight:700}
+.wrong h3 small{font-weight:400;color:var(--muted);margin-left:6px}
+.wrong .chips{justify-content:flex-start}
+.actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;align-items:center}
+
+/* scoreboard */
+.scores{width:100%;max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:8px}
+.srow{display:grid;grid-template-columns:52px 1fr auto 90px;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px 16px;font-size:20px}
+.srow.top{background:linear-gradient(90deg,rgba(255,198,26,.28),var(--panel));border-color:rgba(255,198,26,.6)}
+.srow .rk{font-family:'Bungee',sans-serif;color:var(--sun);font-size:24px}
+.srow .nm{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.srow .plus{color:var(--leaf);font-weight:700;font-size:17px}
+.srow .plus.z{color:var(--muted);font-weight:400}
+.srow .tot{font-family:'Bungee',sans-serif;text-align:right;font-size:24px}
+.h2{font-size:clamp(28px,4vw,48px);margin:0;color:var(--sun)}
+
+/* podium */
+.podium{display:flex;align-items:flex-end;justify-content:center;gap:14px;width:100%;max-width:760px;margin:10px auto 0}
+.pod{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px}
+.pod .nm{font-weight:800;font-size:22px;text-align:center;overflow-wrap:anywhere}
+.pod .sc{font-family:'Bungee',sans-serif;color:var(--sun);font-size:22px}
+.pod .blk{width:100%;border-radius:14px 14px 0 0;display:grid;place-items:center;font-family:'Bungee',sans-serif;font-size:48px;color:var(--ink)}
+.pod.p1 .blk{height:190px;background:var(--sun)}
+.pod.p2 .blk{height:140px;background:var(--cream)}
+.pod.p3 .blk{height:104px;background:#f0a868}
+
+/* phone */
+.phone{max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:18px;padding-top:6px}
+.me{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px 14px}
+.me b{font-size:18px}
+.me .pts{font-family:'Bungee',sans-serif;color:var(--sun)}
+.lbl{font-weight:700;font-size:20px}
+input[type=text],input:not([type]),input[type=number],textarea,select{
+  font:inherit;color:var(--ink);background:var(--cream);border:3px solid transparent;border-radius:12px;padding:14px 16px;width:100%;
+}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--sun)}
+#ans{font-size:22px;font-weight:700}
+.stat{margin:0;min-height:1.5em;color:var(--muted)}
+.stat.ok{color:#8ff0bf}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px;text-align:center}
+.card .big{font-family:'Bungee',sans-serif;font-size:40px;color:var(--sun);line-height:1.1}
+.card.hit{border-color:var(--leaf);background:rgba(27,181,111,.18)}
+.card.miss{border-color:rgba(227,52,47,.6);background:rgba(227,52,47,.14)}
+.qn{margin:0;color:var(--muted);font-weight:500}
+.prow{display:flex;gap:16px;align-items:center}
+.wait{font-size:22px;font-weight:700;margin:0}
+
+/* dialog */
+dialog{border:0;border-radius:20px;padding:0;background:var(--night);color:var(--cream);box-shadow:0 30px 80px rgba(0,0,0,.5);width:min(560px,94vw);max-height:90vh}
+dialog.wide{width:min(820px,96vw)}
+dialog::backdrop{background:rgba(4,8,30,.7)}
+.dlg{padding:22px;display:flex;flex-direction:column;gap:14px}
+.dlg h2{margin:0;color:var(--sun);font-size:26px}
+.dlg p{margin:0}
+.dlg textarea{min-height:320px;font-size:15px;line-height:1.5;resize:vertical}
+.dlg code{background:rgba(255,255,255,.12);border-radius:6px;padding:1px 6px;font-size:.92em}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.row.end{justify-content:flex-end}
+.row label{display:flex;align-items:center;gap:8px}
+.row input[type=number]{width:90px;padding:8px 10px}
+.alist{display:flex;flex-direction:column;gap:10px;max-height:52vh;overflow:auto}
+.arow{display:grid;grid-template-columns:1fr 220px;gap:12px;align-items:center;background:var(--panel);border-radius:12px;padding:10px 12px}
+.arow small{color:var(--muted)}
+.arow select{padding:8px 10px}
+.err{color:#ffb4b1}
+
+
+/* room / join */
+.roomrow{display:flex;gap:32px;align-items:center;justify-content:center;flex-wrap:wrap}
+.qr{background:var(--cream);padding:12px;border-radius:16px;line-height:0}
+.qr img,.qr canvas{width:190px;height:190px;display:block}
+.codebox{display:flex;flex-direction:column;gap:4px;align-items:center}
+.code{font-family:'Bungee',sans-serif;font-size:clamp(56px,9vw,104px);line-height:1;color:var(--cream);letter-spacing:.08em}
+.url{font-size:15px;color:var(--muted);overflow-wrap:anywhere;max-width:40ch}
+.netbar{font-size:14px;border-radius:10px;padding:8px 12px;text-align:center}
+.netbar.down{background:rgba(227,52,47,.22);border:1px solid rgba(227,52,47,.6)}
+.netbar.ok{display:none}
+.hcode{font-family:'Bungee',sans-serif;background:var(--cream);color:var(--ink);border-radius:10px;padding:2px 12px;font-size:18px;letter-spacing:.06em}
+#rc{text-transform:uppercase;font-family:'Bungee',sans-serif;font-size:28px;letter-spacing:.12em;text-align:center}
+.foot{text-align:center;font-size:14px;color:var(--muted)}
+.foot a{color:var(--muted)}
+
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);background:var(--cream);color:var(--ink);padding:12px 18px;border-radius:12px;font-weight:500;opacity:0;pointer-events:none;transition:.25s;max-width:90vw;z-index:10}
+#toast.show{opacity:1;transform:translateX(-50%)}
+.boot{padding:80px 0;text-align:center;color:var(--muted)}
+
+@media (max-width:720px){
+  main{padding:4px 14px 30px}
+  .board.two{grid-auto-flow:row;grid-template-columns:1fr;grid-template-rows:none !important}
+  .srow{grid-template-columns:40px 1fr auto 64px;font-size:17px;padding:8px 12px}
+  .arow{grid-template-columns:1fr}
+  .tile{height:64px}
+}
+@media (prefers-reduced-motion:reduce){
+  .tile-in,.btn,#toast,.timer .arc{transition:none}
+}
+</style>
+</head>
+<body>
+<svg class="bunting" aria-hidden="true" focusable="false">
+  <defs>
+    <pattern id="flags" width="200" height="46" patternUnits="userSpaceOnUse">
+      <path d="M0 5 Q100 15 200 5" stroke="#fff6e3" stroke-opacity=".45" stroke-width="1.5" fill="none"/>
+      <polygon points="3,6 45,10 24,40" fill="#e3342f"/>
+      <polygon points="53,10 95,12 74,43" fill="#ffc61a"/>
+      <polygon points="105,12 147,10 126,43" fill="#5b93ff"/>
+      <polygon points="155,10 197,6 176,40" fill="#fff6e3"/>
+    </pattern>
+  </defs>
+  <rect width="100%" height="46" fill="url(#flags)"/>
+</svg>
+<main id="app"><div class="boot">Naglo-load ang laro…</div></main>
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<dialog id="dlg"></dialog>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const app = $('#app'), dlg = $('#dlg');
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
+function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
+const newId = () => Math.random().toString(36).slice(2,10);
+const ROOM_PREFIX = 'sabingsurvey-ph-v1-';
+const CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+const genCode = () => Array.from({length:4},()=>CODE_CHARS[Math.floor(Math.random()*CODE_CHARS.length)]).join('');
+const cleanCode = c => String(c||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6);
+
+const BLANK = {phase:'lobby',gid:'',qIndex:-1,total:0,question:'',slots:[],seconds:45,startedAt:0,subs:{},ov:{},hist:{},names:{},match:{},x:1};
+let pid = lsGet('sns-pid'); if(!pid){ pid = newId()+newId(); lsSet('sns-pid', pid); }
+const S = {
+  pid, host:false, code:'', peer:null, conn:null, conns:new Set(), net:'connecting', retry:0, attempt:0,
+  live:null, answers:{}, qText:'', qs:[], timer:45,
+  name: lsGet('sns-name') || '', joined:false, editingName:false,
+  myRid:'', myAns:'', sending:false, viewKey:'', seenOpen:new Set(), firstSeen:{}
+};
+
+/* ---------- helpers ---------- */
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove('show'),3400); }
+function rid(){ const L=S.live; return L ? `${L.gid}-${L.qIndex}` : ''; }
+function curQ(){ return S.qs[S.live.qIndex]; }
+function joinUrl(){ return location.origin + location.pathname + '?room=' + S.code; }
+
+function norm(s){
+  return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^a-z0-9 ]+/g,' ').replace(/\s+/g,' ').trim()
+    .replace(/^(ang|mga|ng|yung|iyong|the|a|an|si|sa) /,'');
+}
+function lev(a,b){
+  if(a===b) return 0; const m=a.length,n=b.length; if(!m) return n; if(!n) return m;
+  let prev=Array.from({length:n+1},(_,j)=>j);
+  for(let i=1;i<=m;i++){ const cur=[i]; for(let j=1;j<=n;j++){ cur[j]=Math.min(prev[j]+1,cur[j-1]+1,prev[j-1]+(a[i-1]===b[j-1]?0:1)); } prev=cur; }
+  return prev[n];
+}
+function matchAnswer(ans, list){
+  const a=norm(ans); if(!a) return -1;
+  const aL=' '+a.split(' ').map(w=>w.length>4?w.replace(/ng$/,''):w).join(' ')+' ';
+  let best=-1, bestSc=0;
+  list.forEach((it,i)=>{
+    for(const v of [it.t, ...(it.alt||[])]){
+      const b=norm(v); if(!b) continue;
+      let sc=0;
+      if(a===b) sc=100;
+      else {
+        const d=lev(a,b), L=Math.max(a.length,b.length);
+        const tol = L>=10 ? 2 : (L>=4 ? 1 : 0);
+        if(d<=tol) sc=90-d;
+        else if(a.replace(/s$/,'')===b.replace(/s$/,'')) sc=85;
+        else if(b.length>=4 && ((' '+a+' ').includes(' '+b+' ') || aL.includes(' '+b+' '))) sc=70;
+        else if(a.length>=4 && (' '+b+' ').includes(' '+a+' ')) sc=60;
+      }
+      if(sc>bestSc){ bestSc=sc; best=i; }
+    }
+  });
+  return best;
+}
+
+const ANS_RE = /^[-•*]?\s*(.*?\S)\s*[=:–—-]\s*(\d+)\s*(?:\(([^)]*)\))?\s*$/;
+function parseQs(text){
+  const qs=[], errs=[]; let cur=null;
+  String(text||'').split(/\r?\n/).forEach((raw,ln)=>{
+    let line=raw.replace(/\*\*/g,'').trim(); if(!line) return;
+    const qm=line.match(/^(?:\?|q\s*\d*\s*[:.)]|tanong\s*\d*\s*[:.)])\s*(.+)$/i);
+    if(!qm){
+      const parts=line.split(/,(?![^()]*\))/).map(s=>s.trim()).filter(Boolean);
+      const hits=parts.map(p=>p.match(ANS_RE));
+      if(hits.length && hits.every(Boolean)){
+        if(!cur){ errs.push(`Linya ${ln+1}: may sagot pero wala pang tanong sa itaas nito.`); return; }
+        hits.forEach(m=>cur.a.push({t:m[1].trim(),p:+m[2],alt:(m[3]||'').split(/[,/]/).map(s=>s.trim()).filter(Boolean)}));
+        return;
+      }
+    }
+    let q=(qm?qm[1]:line).trim(), x=1;
+    if(/\(x2\)|\[x2\]/i.test(q)){ x=2; q=q.replace(/\s*(\(x2\)|\[x2\])\s*/ig,' ').trim(); }
+    cur={q,a:[],x}; qs.push(cur);
+  });
+  const good=[];
+  qs.forEach(q=>{ if(!q.a.length) errs.push(`Walang sagot: “${q.q.slice(0,50)}”`); else { q.a.sort((a,b)=>b.p-a.p); q.a=q.a.slice(0,8); good.push(q); } });
+  return {qs:good, errs};
+}
+
+let AC;
+function sfx(ok){
+  try{
+    AC = AC || new (window.AudioContext||window.webkitAudioContext)();
+    const t=AC.currentTime, o=AC.createOscillator(), g=AC.createGain();
+    o.type = ok ? 'triangle' : 'sawtooth';
+    o.frequency.setValueAtTime(ok?880:130,t); if(ok) o.frequency.setValueAtTime(1320,t+.11);
+    g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(ok?.3:.18,t+.02); g.gain.exponentialRampToValueAtTime(.0001,t+(ok?.6:.55));
+    o.connect(g).connect(AC.destination); o.start(t); o.stop(t+.7);
+  }catch(e){}
+}
+
+const SAMPLE=`Q: Magbigay ng pagkaing laging nasa handaan ng Pinoy
+Pancit = 32 (pansit, bihon, canton)
+Lechon = 25 (litson)
+Spaghetti = 18
+Lumpia = 12 (shanghai)
+Kaldereta = 8
+
+Q: Ano ang madalas sabihin ng nanay mo kapag may hinahanap ka? (x2)
+Hanapin mo ulit = 40 (hanapin mo ng maayos)
+Pag nakita ko yan = 30 (pag nakita ko yan lagot ka)
+Nasa harap mo lang = 20 (nasa harap mo)
+Tanong mo sa tatay mo = 10 (tanong mo kay papa)`;
+
+/* ---------- boot ---------- */
+(function boot(){
+  const params=new URLSearchParams(location.search);
+  if(typeof Peer==='undefined'){
+    app.innerHTML=`<section class="stage center"><h1 class="logo disp">Sabi ng<br>Survey!</h1><p class="warn">Hindi ma-load ang game. Tingnan ang internet at i-refresh ang page.</p></section>`;
+    return;
+  }
+  if(params.has('host')) startHost();
+  else {
+    const c=cleanCode(params.get('room') || '');
+    S.code = c;
+    if(c && S.name && lsGet('sns-last-room')===c){ S.joined=true; connectPlayer(); }
+    S.live = {...BLANK};
+    render();
+  }
+  setInterval(tick,250);
+})();
+
+/* ================= HOST ================= */
+function startHost(){
+  S.host=true;
+  S.qText = lsGet('sns-qtext') ?? SAMPLE;
+  S.timer = +lsGet('sns-timer') || 45;
+  S.qs = parseQs(S.qText).qs;
+  let saved=null; try{ saved=JSON.parse(lsGet('sns-host')||'null'); }catch(e){}
+  S.code = (saved && saved.code) || genCode();
+  S.live = saved && saved.live ? {...BLANK, ...saved.live} : {...BLANK, gid:newId(), seconds:S.timer};
+  S.answers = (saved && saved.answers) || {};
+  saveHost();
+  openHostPeer(0);
+  render();
+}
+function saveHost(){ lsSet('sns-host', JSON.stringify({code:S.code, live:S.live, answers:S.answers})); }
+
+function openHostPeer(tries){
+  if(S.peer){ try{ S.peer.destroy(); }catch(e){} }
+  S.net='connecting';
+  const peer=new Peer(ROOM_PREFIX+S.code, {debug:0});
+  S.peer=peer;
+  peer.on('open',()=>{ S.net='ok'; render(); });
+  peer.on('connection',conn=>{
+    conn.on('open',()=>{ S.conns.add(conn); sendTo(conn,{type:'state', live:S.live}); });
+    conn.on('data',d=>onHostData(conn,d));
+    conn.on('close',()=>{ S.conns.delete(conn); });
+    conn.on('error',()=>{ S.conns.delete(conn); });
+  });
+  peer.on('disconnected',()=>{ if(peer.destroyed) return; S.net='down'; render(); setTimeout(()=>{ try{ if(!peer.destroyed) peer.reconnect(); }catch(e){} },2000); });
+  peer.on('error',err=>{
+    if(err.type==='unavailable-id'){
+      if(tries<10) setTimeout(()=>openHostPeer(tries+1),3000);
+      else { S.net='taken'; render(); }
+    } else if(['network','server-error','socket-error','socket-closed'].includes(err.type)){
+      S.net='down'; render();
+      setTimeout(()=>{ if(S.net!=='ok') openHostPeer(tries); },4000);
+    }
+  });
+}
+function newRoomCode(){ S.code=genCode(); saveHost(); openHostPeer(0); render(); }
+function sendTo(conn,msg){ try{ if(conn.open) conn.send(msg); }catch(e){} }
+function broadcast(){ const msg={type:'state', live:S.live}; S.conns.forEach(c=>sendTo(c,msg)); }
+
+function onHostData(conn,d){
+  if(!d || typeof d!=='object' || typeof d.pid!=='string' || d.pid.length>40) return;
+  const p=d.pid, prev=S.answers[p]||{};
+  if(d.type==='join'){
+    const name=String(d.name||'').trim().slice(0,24) || 'Player';
+    conn.pid=p;
+    S.answers[p]={...prev, name, at:Date.now()};
+    if(S.live.names && S.live.names[p] && S.live.names[p]!==name){ S.live={...S.live, names:{...S.live.names,[p]:name}}; broadcast(); }
+    saveHost(); render();
+    sendTo(conn,{type:'me', rid:prev.rid||'', answer:prev.answer||'', joined:true});
+  } else if(d.type==='answer'){
+    const ans=String(d.answer||'').trim().slice(0,60);
+    if(S.live.phase==='answer' && d.rid===rid() && ans){
+      S.answers[p]={...prev, name:prev.name||'Player', rid:d.rid, answer:ans, at:Date.now()};
+      saveHost(); render();
+      sendTo(conn,{type:'me', rid:d.rid, answer:ans});
+    } else sendTo(conn,{type:'late'});
+  }
+}
+
+function writeLive(patch){
+  S.live={...S.live, ...patch};
+  saveHost(); render(); broadcast();
+}
+function recentPlayers(){
+  return Object.entries(S.answers).filter(([u,d])=>d && d.name && Date.now()-(d.at||0) < 8*3600e3)
+    .sort((a,b)=>(a[1].at||0)-(b[1].at||0));
+}
+function startQ(i){
+  const q=S.qs[i]; if(!q) return;
+  const L=S.live, names={...(L.names||{})};
+  recentPlayers().forEach(([u,d])=>{ names[u]=d.name; });
+  writeLive({phase:'answer', gid:L.gid||newId(), qIndex:i, total:S.qs.length, question:q.q,
+    slots:q.a.map(()=>({t:null,p:null,c:null})), seconds:S.timer, startedAt:Date.now(),
+    subs:{}, ov:{}, match:{}, x:q.x||1, names});
+}
+function lock(auto){
+  const L=S.live; if(L.phase!=='answer') return;
+  const r=rid(), subs={}, names={...(L.names||{})};
+  for(const [u,d] of Object.entries(S.answers)){
+    if(d && d.rid===r && d.answer){ subs[u]={n:d.name||'Player', a:d.answer}; names[u]=d.name||'Player'; }
+  }
+  if(auto) sfx(false);
+  writeLive({phase:'reveal', subs, names});
+}
+function roundAnswers(ov){
+  const L=S.live, q=curQ(); if(!q) return [];
+  ov = ov || L.ov || {};
+  return Object.entries(L.subs||{}).map(([u,s])=>({u, n:s.n, a:s.a, m: (u in ov) ? ov[u] : matchAnswer(s.a,q.a)}));
+}
+function counts(ov){ const q=curQ(); const c=q?q.a.map(()=>0):[]; roundAnswers(ov).forEach(x=>{ if(x.m>=0 && x.m<c.length) c[x.m]++; }); return c; }
+function groupAnswers(){
+  const map=new Map();
+  roundAnswers().forEach(x=>{ const k=norm(x.a)+'|'+x.m; if(!map.has(k)) map.set(k,{label:x.a,m:x.m,us:[],ns:[]}); const g=map.get(k); g.us.push(x.u); g.ns.push(x.n); });
+  return [...map.values()].sort((a,b)=>b.us.length-a.us.length);
+}
+function revealSlot(i){
+  const q=curQ(); if(!q) return; const slots=S.live.slots.map(s=>({...s})); if(slots[i].t!=null) return;
+  const c=counts(); slots[i]={t:q.a[i].t, p:q.a[i].p*(S.live.x||1), c:c[i]}; sfx(true); writeLive({slots});
+}
+function revealAll(){
+  const q=curQ(); if(!q) return; const c=counts();
+  const slots=q.a.map((a,i)=>({t:a.t, p:a.p*(S.live.x||1), c:c[i]})); sfx(true); writeLive({slots});
+}
+function setOverride(us,m){
+  const ov={...(S.live.ov||{})}; us.forEach(u=>{ ov[u]=m; });
+  const c=counts(ov); const slots=S.live.slots.map((s,i)=>s.t!=null?{...s,c:c[i]}:{...s});
+  writeLive({ov, slots});
+}
+function showScores(){
+  const L=S.live, q=curQ(); if(!q) return;
+  const pts={}, match={};
+  roundAnswers().forEach(x=>{ match[x.u]=x.m; pts[x.u]= x.m>=0 ? q.a[x.m].p*(L.x||1) : 0; });
+  const c=counts(); const slots=q.a.map((a,i)=>({t:a.t, p:a.p*(L.x||1), c:c[i]}));
+  writeLive({phase:'scores', hist:{...(L.hist||{}), ['r'+L.qIndex]:pts}, match, slots});
+}
+function nextQ(){ const i=S.live.qIndex+1; if(i<S.qs.length) startQ(i); else writeLive({phase:'final'}); }
+function resetGame(){ S.seenOpen=new Set(); writeLive({...BLANK, gid:newId(), seconds:S.timer}); }
+
+/* ================= PLAYER ================= */
+function connectPlayer(){
+  const my=++S.attempt;
+  clearTimeout(S.rt);
+  if(S.peer){ try{ S.peer.destroy(); }catch(e){} }
+  if(S.net!=='noroom') S.net='connecting';
+  renderNet();
+  const peer=new Peer({debug:0}); S.peer=peer;
+  const retry=(why)=>{
+    if(my!==S.attempt) return;
+    S.attempt++;
+    S.net = why==='noroom' ? 'noroom' : 'down'; S.conn=null; renderNet();
+    S.retry++;
+    S.rt=setTimeout(connectPlayer, Math.min(8000, 1200*S.retry));
+  };
+  peer.on('open',()=>{
+    const conn=peer.connect(ROOM_PREFIX+S.code,{reliable:true});
+    S.conn=conn;
+    conn.on('open',()=>{ if(my!==S.attempt) return; S.net='ok'; S.retry=0; renderNet(); conn.send({type:'join', pid:S.pid, name:S.name}); });
+    conn.on('data',onPlayerData);
+    conn.on('close',()=>retry());
+    conn.on('error',()=>retry());
+  });
+  peer.on('error',err=>retry(err.type==='peer-unavailable'?'noroom':''));
+  setTimeout(()=>{ if(my===S.attempt && S.net!=='ok') retry(); },12000);
+}
+function onPlayerData(d){
+  if(!d || typeof d!=='object') return;
+  if(d.type==='state' && d.live){ S.live={...BLANK, ...d.live}; onLive(); }
+  else if(d.type==='me'){
+    S.myRid=d.rid||''; S.myAns=d.answer||'';
+    if(!S.joined || d.joined){ S.joined=true; lsSet('sns-last-room',S.code); }
+    if(S.sending){ S.sending=false; clearTimeout(S.st); }
+    render(); updatePlayerBits();
+  } else if(d.type==='late'){ S.sending=false; clearTimeout(S.st); toast('Sarado na ang sagutan para sa tanong na ito.'); updatePlayerBits(); }
+}
+function playerJoin(){
+  const code=cleanCode($('#rc') ? $('#rc').value : S.code);
+  const n=($('#nm').value||'').trim().slice(0,24);
+  if(!code){ $('#rc') && $('#rc').focus(); return; }
+  if(!n){ $('#nm').focus(); return; }
+  const same = code===S.code && S.conn && S.conn.open;
+  S.code=code; S.name=n; lsSet('sns-name',n);
+  if(!S.host && history.replaceState) history.replaceState(null,'',location.pathname+'?room='+code);
+  S.editingName=false; S.joined=true; S.viewKey='';
+  if(same){ S.conn.send({type:'join', pid:S.pid, name:n}); }
+  else { S.net='connecting'; S.retry=0; connectPlayer(); }
+  render();
+}
+function submitAnswer(){
+  if(S.live.phase!=='answer' || S.sending) return;
+  const inp=$('#ans'); const v=(inp.value||'').trim().slice(0,60); if(!v){ inp.focus(); return; }
+  if(!S.conn || !S.conn.open){ toast('Hindi pa konektado. Sandali lang, kumokonekta ulit.'); return; }
+  S.sending=true; updatePlayerBits();
+  S.conn.send({type:'answer', pid:S.pid, rid:rid(), answer:v});
+  clearTimeout(S.st);
+  S.st=setTimeout(()=>{ if(S.sending){ S.sending=false; updatePlayerBits(); toast('Hindi naipasa. Subukan ulit.'); } },6000);
+}
+
+/* ---------- shared ---------- */
+function onLive(){
+  const r=rid();
+  if(S.live.phase==='answer' && !S.firstSeen[r]) S.firstSeen[r]=Date.now();
+  render();
+}
+function remaining(){
+  const L=S.live; if(!L || L.phase!=='answer') return 0;
+  let start=L.startedAt;
+  if(!S.host){ const fs=S.firstSeen[rid()]; if(fs && Math.abs(fs-start)>8000) start=fs; }
+  return Math.max(0, L.seconds-(Date.now()-start)/1000);
+}
+function tick(){
+  if(!S.live) return;
+  const rem=remaining(), sec=S.live.seconds||45;
+  document.querySelectorAll('[data-timer]').forEach(el=>{ el.textContent=Math.ceil(rem); });
+  document.querySelectorAll('[data-arc]').forEach(el=>{ el.style.strokeDashoffset = String(100 - (rem/sec)*100); });
+  document.querySelectorAll('.timer').forEach(el=>el.classList.toggle('low', rem<=5));
+  if(S.host && S.live.phase==='answer' && (Date.now()-S.live.startedAt)/1000 > sec+1.5) lock(true);
+}
+function totals(){ const t={}, h=S.live.hist||{}; for(const r in h) for(const u in h[r]) t[u]=(t[u]||0)+h[r][u]; return t; }
+function ranking(){
+  const t=totals(), names=S.live.names||{};
+  const list=Object.keys(names).map(u=>({u, n:names[u]||'Player', s:t[u]||0})).sort((a,b)=>b.s-a.s || a.n.localeCompare(b.n));
+  list.forEach(r=>{ r.rank=1+list.filter(o=>o.s>r.s).length; });
+  return list;
+}
+function timerHTML(big){
+  return `<div class="timer ${big?'big':''}" role="timer"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="44" class="trk"/><circle cx="50" cy="50" r="44" class="arc" data-arc pathLength="100"/></svg><span data-timer>${Math.ceil(remaining())}</span></div>`;
+}
+function boardHTML(slots, clickable, mini){
+  const n=slots.length, two=n>4, rows=Math.ceil(n/2), r=rid();
+  const html=slots.map((s,i)=>{
+    const open=s.t!=null, key=r+':'+i, fresh=open && !S.seenOpen.has(key);
+    if(open) S.seenOpen.add(key);
+    const cls = open && !fresh ? 'open' : '';
+    const act = clickable && !open ? `data-act="reveal" data-i="${i}"` : 'disabled';
+    return `<button class="tile ${cls}" ${fresh?'data-anim="1"':''} ${act} aria-label="${open?esc(s.t)+', '+s.p+' puntos':'Nakatagong sagot '+(i+1)}">
+      <span class="tile-in"><span class="face front"><span class="num">${i+1}</span></span>
+      <span class="face back"><span class="t">${open?esc(s.t):''}</span>${open&&s.c!=null&&!mini?`<span class="c">${s.c} tao</span>`:''}<span class="p">${open?s.p:''}</span></span></span></button>`;
+  }).join('');
+  return `<div class="board ${two?'two':''} ${mini?'mini':''}" ${two?`style="grid-template-rows:repeat(${rows},auto)"`:''}>${html}</div>`;
+}
+function flipFresh(){
+  const els=app.querySelectorAll('[data-anim]'); if(!els.length) return;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>els.forEach(el=>el.classList.add('open'))));
+}
+
+/* ---------- render ---------- */
+function render(){ if(!S.live) return; S.host ? renderHost() : renderPlayer(); }
+
+function netNote(){
+  if(S.net==='ok') return '';
+  if(S.net==='taken') return `<p class="warn">Ginagamit pa ang room code na ito. <button class="link" data-act="newcode">Gumawa ng bagong code</button></p>`;
+  if(S.net==='down') return `<p class="warn">Nawala ang koneksyon sa internet. Kumokonekta ulit…</p>`;
+  return `<p class="hint">Binubuksan ang room…</p>`;
+}
+function hostHeader(){
+  const L=S.live, inGame=L.phase!=='lobby' && L.phase!=='final';
+  return `<header class="bar"><div class="brand disp">Sabi ng Survey!</div><span class="hcode" title="Room code">${esc(S.code)}</span><div class="pill">${inGame?`Tanong ${L.qIndex+1} sa ${L.total}`:''}</div>
+  <div class="tools"><button class="ghost" data-act="editor">Mga tanong (${S.qs.length})</button><button class="ghost" data-act="reset">Bagong laro</button></div></header>${netNote()}`;
+}
+function renderHost(){
+  const L=S.live; let body='';
+  if(L.phase==='lobby'){
+    const ps=recentPlayers();
+    body=`<section class="stage center">
+      <h1 class="logo disp">Sabi ng<br>Survey!</h1>
+      <div class="roomrow">
+        <div class="qr" id="qr" aria-label="QR code para sumali"></div>
+        <div class="codebox"><span class="lede">I-scan ang QR o pumunta sa link, tapos ilagay ang code:</span><span class="code">${esc(S.code)}</span><span class="url">${esc(joinUrl())}</span></div>
+      </div>
+      <div class="joined"><span class="big-n disp">${ps.length}</span><span>kasali na</span></div>
+      <div class="chips">${ps.map(([u,d])=>`<span class="chip">${esc(d.name)}</span>`).join('')}</div>
+      ${S.qs.length ? `<button class="btn xl" data-act="start">Simulan ang laro</button><p class="hint">${S.qs.length} tanong, ${S.timer} segundo bawat isa. Huwag isara ang tab na ito habang naglalaro.</p>`
+                    : `<p class="warn">Wala pang tanong. Pindutin ang “Mga tanong” sa itaas para magdagdag.</p>`}
+    </section>`;
+  } else if(L.phase==='answer'){
+    const r=rid(), ps=recentPlayers();
+    const done=ps.filter(([u,d])=>d.rid===r && d.answer).length;
+    body=`<section class="stage center">
+      <div class="qmeta">${L.x>1?'<span class="dbl disp">Doble puntos!</span>':''}</div>
+      <h2 class="question">${esc(L.question)}</h2>
+      <div class="qrow">${timerHTML(true)}<p class="count"><b>${done}</b> sa ${ps.length} ang nakasagot na</p></div>
+      <div class="chips">${ps.map(([u,d])=>`<span class="chip ${d.rid===r&&d.answer?'on':''}">${esc(d.name)}</span>`).join('')}</div>
+      ${boardHTML(L.slots,false)}
+      <div class="actions"><button class="btn" data-act="lock">I-lock na ang mga sagot</button></div>
+    </section>`;
+  } else if(L.phase==='reveal'){
+    const gs=groupAnswers(), wrong=gs.filter(g=>g.m<0), total=Object.keys(L.subs||{}).length;
+    S.groups=gs;
+    body=`<section class="stage center">
+      <div class="qmeta">${L.x>1?'<span class="dbl disp">Doble puntos!</span>':''}</div>
+      <h2 class="question">${esc(L.question)}</h2>
+      <p class="hint">${total} ang sumagot. Pindutin ang bawat kahon para buksan.</p>
+      ${boardHTML(L.slots,true)}
+      <div class="wrong"><h3>Walang tumama<small>${wrong.reduce((a,g)=>a+g.us.length,0)} tao</small></h3>
+        <div class="chips">${wrong.map(g=>`<button class="chip x" data-act="assign" data-g="${gs.indexOf(g)}" title="${esc(g.ns.join(', '))}">${esc(g.label)}${g.us.length>1?` <b>×${g.us.length}</b>`:''}</button>`).join('') || '<span class="hint">Lahat may tumama!</span>'}</div>
+      </div>
+      <div class="actions"><button class="ghost" data-act="review">Suriin ang mga sagot</button><button class="ghost" data-act="revealAll">Buksan lahat</button><button class="btn" data-act="scores">Ipakita ang score</button></div>
+    </section>`;
+  } else if(L.phase==='scores'){
+    const rk=ranking(), pts=(L.hist||{})['r'+L.qIndex]||{}, last=L.qIndex+1>=S.qs.length;
+    const show=rk.slice(0,12);
+    body=`<section class="stage center">
+      <h2 class="h2 disp">Scoreboard</h2>
+      <p class="hint">Pagkatapos ng tanong ${L.qIndex+1} sa ${L.total}</p>
+      <div class="scores">${show.map(r=>`<div class="srow ${r.rank===1&&r.s>0?'top':''}"><span class="rk">${r.rank}</span><span class="nm">${esc(r.n)}</span><span class="plus ${pts[r.u]?'':'z'}">+${pts[r.u]||0}</span><span class="tot">${r.s}</span></div>`).join('')}
+      ${rk.length>show.length?`<p class="hint">at ${rk.length-show.length} pang iba</p>`:''}</div>
+      ${boardHTML(L.slots,false)}
+      <div class="actions"><button class="btn xl" data-act="next">${last?'Tapusin ang laro':'Susunod na tanong'}</button></div>
+    </section>`;
+  } else if(L.phase==='final'){
+    const rk=ranking(), p=[rk[1],rk[0],rk[2]];
+    body=`<section class="stage center">
+      <h2 class="logo disp" style="font-size:clamp(40px,7vw,84px)">Mga kampeon!</h2>
+      <div class="podium">${p.map((r,i)=>r?`<div class="pod p${[2,1,3][i]}"><span class="nm">${esc(r.n)}</span><span class="sc">${r.s}</span><div class="blk">${[2,1,3][i]}</div></div>`:'<div class="pod"></div>').join('')}</div>
+      <div class="scores">${rk.slice(3,15).map(r=>`<div class="srow"><span class="rk">${r.rank}</span><span class="nm">${esc(r.n)}</span><span></span><span class="tot">${r.s}</span></div>`).join('')}</div>
+      <div class="actions"><button class="btn" data-act="reset">Maglaro ulit</button></div>
+    </section>`;
+  }
+  app.innerHTML = hostHeader() + body;
+  flipFresh();
+  const qr=$('#qr');
+  if(qr && typeof QRCode!=='undefined'){ try{ new QRCode(qr,{text:joinUrl(), width:380, height:380, colorDark:'#0f1b5e', colorLight:'#fff6e3', correctLevel:QRCode.CorrectLevel.M}); }catch(e){ qr.remove(); } }
+  else if(qr) qr.remove();
+}
+
+function playerNetHTML(){
+  if(!S.joined || S.editingName) return '';
+  const cls = S.net==='ok' ? 'ok' : 'down';
+  const msg = S.net==='noroom' ? `Hindi mahanap ang room ${esc(S.code)}. Tingnan ang code sa TV. <button class="link" data-act="rename">Palitan ang code</button>`
+            : 'Kumokonekta sa laro…';
+  return `<div id="netbar" class="netbar ${cls}">${msg}</div>`;
+}
+function renderNet(){ const el=$('#netbar'); if(el){ el.outerHTML=playerNetHTML() || '<div id="netbar" class="netbar ok"></div>'; } else if(!S.host) render(); }
+
+function renderPlayer(){
+  const L=S.live, r=rid();
+  const formMode = !S.joined || S.editingName;
+  const inputMode = formMode || L.phase==='answer';
+  const key=[L.phase, r, S.joined?1:0, S.editingName?1:0, S.net==='noroom'?1:0].join('|');
+  if(inputMode && key===S.viewKey){ updatePlayerBits(); const nb=$('#netbar'); if(nb) nb.outerHTML=playerNetHTML()||'<div id="netbar" class="netbar ok"></div>'; return; }
+  S.viewKey=key;
+  let body='';
+  if(formMode){
+    body=`<h1 class="logo sm disp">Sabi ng Survey!</h1>
+      <form class="phone" data-form="join" style="padding:0">
+        <label class="lbl" for="rc">Room code</label>
+        <input id="rc" maxlength="6" autocomplete="off" autocapitalize="characters" inputmode="text" value="${esc(S.code)}" placeholder="ABCD">
+        <label class="lbl" for="nm">Anong pangalan mo?</label>
+        <input id="nm" maxlength="24" autocomplete="nickname" value="${esc(S.name)}" placeholder="Hal. Tita Baby">
+        <button class="btn block" type="submit">${S.joined?'I-save':'Sumali'}</button>
+      </form>
+      <p class="foot">Ikaw ba ang host? <a href="?host">Buksan ang host screen</a></p>`;
+  } else {
+    const t=totals()[S.pid]||0;
+    const head=`${playerNetHTML()}<div class="me"><div><b>${esc(S.name)}</b><br><button class="link" data-act="rename">Palitan ang pangalan</button></div><span class="pts">${t} pts</span></div>`;
+    if(L.phase==='lobby'){
+      body=head+`<div class="card"><p class="wait">${S.net==='ok'?'Nakasali ka na!':'Sandali lang…'}</p><p class="hint">Hintayin ang host na magsimula. Tingnan ang malaking screen.</p></div>`;
+    } else if(L.phase==='answer'){
+      body=head+`<p class="qn">Tanong ${L.qIndex+1} sa ${L.total}${L.x>1?' (Doble puntos!)':''}</p>
+        <div class="prow">${timerHTML(false)}<h2 class="question sm">${esc(L.question)}</h2></div>
+        <form data-form="answer" class="phone" style="padding:0;gap:12px">
+          <input id="ans" maxlength="60" autocomplete="off" autocapitalize="sentences" enterkeyhint="send" placeholder="I-type ang sagot mo" aria-label="Sagot mo">
+          <button class="btn block" id="asub" type="submit">Isumite</button>
+        </form>
+        <p id="astat" class="stat" aria-live="polite"></p>`;
+    } else if(L.phase==='reveal'){
+      const mine=(L.subs||{})[S.pid];
+      body=head+`<div class="card"><p class="wait">Tingnan ang malaking screen!</p><p class="hint">${mine?`Sagot mo: “${esc(mine.a)}”`:'Hindi ka nakasagot sa round na ito.'}</p></div>
+        <h2 class="question sm">${esc(L.question)}</h2>${boardHTML(L.slots,false,true)}`;
+    } else if(L.phase==='scores'){
+      const mine=(L.subs||{})[S.pid], m=(L.match||{})[S.pid], pts=((L.hist||{})['r'+L.qIndex]||{})[S.pid]||0;
+      const rk=ranking(), me=rk.find(x=>x.u===S.pid);
+      const slot = (m!=null && m>=0) ? (L.slots[m]||{}) : null;
+      body=head+(mine ? (slot ? `<div class="card hit"><p class="hint">Tumama ang “${esc(mine.a)}”</p><div class="big">+${pts}</div><p>${esc(slot.t||'')}</p></div>`
+                              : `<div class="card miss"><p class="hint">“${esc(mine.a)}”</p><div class="big">Walang tumama</div><p>Bawi sa susunod!</p></div>`)
+                        : `<div class="card"><div class="big">+0</div><p>Hindi ka nakasagot.</p></div>`)
+        + (me?`<div class="card"><p class="hint">Puwesto mo</p><div class="big">#${me.rank}</div><p>sa ${rk.length} na manlalaro</p></div>`:'')
+        + boardHTML(L.slots,false,true);
+    } else if(L.phase==='final'){
+      const rk=ranking(), me=rk.find(x=>x.u===S.pid);
+      body=head+`<div class="card ${me&&me.rank<=3?'hit':''}"><p class="hint">Tapos na ang laro!</p><div class="big">${me?'#'+me.rank:'-'}</div><p>${me?`${me.s} puntos`:''}${me&&me.rank===1?' Ikaw ang kampeon!':''}</p></div>`;
+    }
+  }
+  app.innerHTML=`<section class="phone">${body}</section>`;
+  flipFresh();
+  if(L.phase==='answer' && !formMode){ const i=$('#ans'); if(i && S.myRid===r) i.value=S.myAns; updatePlayerBits(); }
+}
+function updatePlayerBits(){
+  const st=$('#astat'), b=$('#asub'); if(!st||!b) return;
+  const sent = S.myRid===rid() && S.myAns;
+  st.className='stat'+(sent?' ok':'');
+  st.textContent = sent ? `Naipasa: “${S.myAns}”. Puwede mo pang palitan habang may oras.` : 'Isipin ang pinakakaraniwang sagot ng karamihan.';
+  b.textContent = S.sending ? 'Ipinapasa…' : (sent ? 'Palitan ang sagot' : 'Isumite');
+  b.disabled = S.sending;
+}
+
+/* ---------- dialogs (host) ---------- */
+function openEditor(){
+  dlg.className='wide';
+  dlg.innerHTML=`<form class="dlg" method="dialog">
+    <h2 class="disp">Mga tanong</h2>
+    <p class="hint">Simulan ang bawat tanong sa <code>Q:</code>, tapos isang sagot bawat linya: <code>Sagot = puntos (ibang tawag, ibang spelling)</code>. Ang nasa panaklong ay tatanggapin ding tama. Lagyan ng <code>(x2)</code> ang tanong para doble puntos. Hanggang 8 sagot bawat tanong. Nakatago ang mga tanong sa device na ito lang.</p>
+    <textarea id="qtext" spellcheck="false" placeholder="${esc(SAMPLE)}">${esc(S.qText)}</textarea>
+    <div class="row"><label>Oras bawat tanong <input id="qtime" type="number" min="10" max="300" value="${S.timer}"> segundo</label></div>
+    <p id="qparse" class="hint"></p>
+    <div class="row end"><button class="ghost" value="cancel">Isara</button><button class="btn" id="qsave" type="button">I-save</button></div>
+  </form>`;
+  const ta=$('#qtext'), out=$('#qparse');
+  const upd=()=>{ const {qs,errs}=parseQs(ta.value); out.innerHTML=`${qs.length} tanong ang nabasa.`+(errs.length?`<br><span class="err">${errs.slice(0,4).map(esc).join('<br>')}</span>`:''); };
+  ta.addEventListener('input',()=>{ clearTimeout(upd._t); upd._t=setTimeout(upd,250); }); upd();
+  $('#qsave').onclick=()=>{
+    const text=ta.value, timer=Math.min(300,Math.max(10,parseInt($('#qtime').value,10)||45));
+    S.qText=text; S.timer=timer; S.qs=parseQs(text).qs;
+    lsSet('sns-qtext',text); lsSet('sns-timer',String(timer));
+    dlg.close(); render(); toast(`Na-save: ${S.qs.length} tanong`);
+  };
+  dlg.showModal();
+}
+function openAssign(gi){
+  const q=curQ(); if(!q) return;
+  const gs=S.groups||groupAnswers(); const list = gi==null ? gs : [gs[gi]].filter(Boolean);
+  const opts=m=>`<option value="-1" ${m<0?'selected':''}>Walang tumama</option>`+q.a.map((a,i)=>`<option value="${i}" ${m===i?'selected':''}>#${i+1} ${esc(a.t)}</option>`).join('');
+  dlg.className='';
+  dlg.innerHTML=`<form class="dlg" method="dialog">
+    <h2 class="disp">Suriin ang mga sagot</h2>
+    <p class="hint">Kung tama naman pero hindi nakilala ng laro, piliin kung saang sagot ito bibilang.</p>
+    <div class="alist">${list.map(g=>`<div class="arow"><span><b>${esc(g.label)}</b><br><small>${esc(g.ns.join(', '))}</small></span><select aria-label="Bibilang sa" data-us="${esc(g.us.join(','))}">${opts(g.m)}</select></div>`).join('') || '<p class="hint">Wala pang sagot.</p>'}</div>
+    <div class="row end"><button class="btn" value="ok">Tapos na</button></div>
+  </form>`;
+  dlg.querySelectorAll('select').forEach(s=>s.addEventListener('change',()=>setOverride(s.dataset.us.split(','), +s.value)));
+  dlg.showModal();
+}
+function confirmReset(){
+  dlg.className='';
+  dlg.innerHTML=`<form class="dlg" method="dialog"><h2 class="disp">Bagong laro?</h2><p>Mabubura ang lahat ng score at babalik sa simula. Mananatili ang mga tanong, ang room code, at ang mga kasali.</p>
+  <div class="row end"><button class="ghost" value="cancel">Huwag muna</button><button class="btn" value="ok" id="rs">Magsimula ulit</button></div></form>`;
+  $('#rs').onclick=()=>resetGame();
+  dlg.showModal();
+}
+
+/* ---------- events ---------- */
+app.addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]'); if(!b || b.disabled) return;
+  const a=b.dataset.act;
+  if(a==='rename'){ S.editingName=true; S.viewKey=''; render(); setTimeout(()=>{ const i=$('#nm'); i&&i.focus(); },0); return; }
+  if(!S.host) return;
+  if(a==='editor') openEditor();
+  else if(a==='reset') S.live.phase==='final' ? resetGame() : confirmReset();
+  else if(a==='newcode') newRoomCode();
+  else if(a==='start') startQ(0);
+  else if(a==='lock') lock(false);
+  else if(a==='reveal') revealSlot(+b.dataset.i);
+  else if(a==='revealAll') revealAll();
+  else if(a==='scores') showScores();
+  else if(a==='next') nextQ();
+  else if(a==='review') openAssign(null);
+  else if(a==='assign') openAssign(+b.dataset.g);
+});
+app.addEventListener('submit',e=>{
+  const f=e.target.closest('[data-form]'); if(!f) return; e.preventDefault();
+  if(f.dataset.form==='join') playerJoin(); else if(f.dataset.form==='answer') submitAnswer();
+});
+</script>
+</body>
+</html>
