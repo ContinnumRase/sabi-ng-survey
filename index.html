@@ -201,6 +201,12 @@ dialog::backdrop{background:rgba(4,8,30,.7)}
 .foot{text-align:center;font-size:14px;color:var(--muted)}
 .foot a{color:var(--muted)}
 
+.srow2{display:flex;align-items:center;gap:12px;font-weight:500}
+.srow2 input[type=range]{flex:1;accent-color:var(--sun)}
+.srow2 input[type=checkbox]{width:22px;height:22px;accent-color:var(--sun)}
+.flist{display:flex;flex-direction:column;gap:6px;font-size:14px;background:var(--panel);border-radius:12px;padding:10px 12px}
+.flist div{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.okc{color:#8ff0bf;font-weight:700}
 #toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);background:var(--cream);color:var(--ink);padding:12px 18px;border-radius:12px;font-weight:500;opacity:0;pointer-events:none;transition:.25s;max-width:90vw;z-index:10}
 #toast.show{opacity:1;transform:translateX(-50%)}
 .boot{padding:80px 0;text-align:center;color:var(--muted)}
@@ -321,17 +327,80 @@ function parseQs(text){
   return {qs:good, errs};
 }
 
+/* ---------- sound ---------- */
+/* Put these files in the same folder as index.html. Any file that is missing is skipped:
+   music just stays quiet, and sound effects use the built-in synth sounds instead. */
+const SOUND_FILES = {
+  lobby:  'music-lobby.mp3',   // lobby + scoreboard (loops)
+  think:  'music-think.mp3',   // while players are answering (loops)
+  win:    'music-win.mp3',     // final podium (plays once)
+  reveal: 'sfx-reveal.mp3',    // flipping a tile
+  top:    'sfx-top.mp3',       // flipping the #1 answer
+  buzz:   'sfx-buzz.mp3',      // time's up / answers locked
+  tick:   'sfx-tick.mp3'       // last 5 seconds of the timer
+};
+const MUSIC_KEYS = ['lobby','think','win'];
+const MUSIC_FOR = {lobby:'lobby', answer:'think', reveal:null, scores:'lobby', final:'win'};
+const numOr = (v,d) => { const n=parseFloat(v); return isNaN(n) ? d : Math.min(1,Math.max(0,n)); };
+const SND = {
+  el:{}, ok:{}, cur:null, unlocked:false, loaded:false,
+  music: lsGet('sns-music')!=='0', fx: lsGet('sns-fx')!=='0',
+  mvol: numOr(lsGet('sns-mvol'),0.45), fvol: numOr(lsGet('sns-fvol'),0.9)
+};
 let AC;
-function sfx(ok){
+function sndLoad(){
+  if(SND.loaded) return; SND.loaded=true;
+  for(const [k,f] of Object.entries(SOUND_FILES)){
+    const a=new Audio(); a.preload='auto'; a.loop = (k==='lobby'||k==='think');
+    a.addEventListener('loadeddata',()=>{ SND.ok[k]=true; refreshSoundDlg(); },{once:true});
+    a.addEventListener('error',()=>{ SND.ok[k]=false; refreshSoundDlg(); },{once:true});
+    a.src=f; SND.el[k]=a;
+  }
+}
+function fadeTo(a,v,ms){
+  clearInterval(a._f); const from=a.volume, t0=performance.now(); ms=ms||600;
+  a._f=setInterval(()=>{ const k=Math.min(1,(performance.now()-t0)/ms); a.volume=from+(v-from)*k; if(k>=1){ clearInterval(a._f); if(v===0) a.pause(); } },40);
+}
+function updateMusic(force){
+  if(!S.host || !SND.unlocked || !S.live) return;
+  const want = SND.music ? (MUSIC_FOR[S.live.phase]||null) : null;
+  if(want===SND.cur && !force) return;
+  if(SND.cur && SND.el[SND.cur] && SND.cur!==want) fadeTo(SND.el[SND.cur],0,500);
+  SND.cur=want;
+  const a=want && SND.el[want];
+  if(a && SND.ok[want]!==false){
+    if(a.paused){ a.currentTime=0; a.volume=0; }
+    a.play().then(()=>fadeTo(a,SND.mvol,700)).catch(()=>{});
+  }
+}
+function tone(freq,start,dur,type,vol){
+  const t=AC.currentTime+start, o=AC.createOscillator(), g=AC.createGain();
+  o.type=type||'triangle'; o.frequency.setValueAtTime(freq,t);
+  g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(Math.max(.0002,vol),t+.015); g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  o.connect(g).connect(AC.destination); o.start(t); o.stop(t+dur+.05);
+}
+function synth(k){
   try{
     AC = AC || new (window.AudioContext||window.webkitAudioContext)();
-    const t=AC.currentTime, o=AC.createOscillator(), g=AC.createGain();
-    o.type = ok ? 'triangle' : 'sawtooth';
-    o.frequency.setValueAtTime(ok?880:130,t); if(ok) o.frequency.setValueAtTime(1320,t+.11);
-    g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(ok?.3:.18,t+.02); g.gain.exponentialRampToValueAtTime(.0001,t+(ok?.6:.55));
-    o.connect(g).connect(AC.destination); o.start(t); o.stop(t+.7);
+    if(AC.state==='suspended') AC.resume();
+    const v=SND.fvol;
+    if(k==='reveal'){ tone(1047,0,.5,'triangle',.3*v); tone(1568,.09,.7,'triangle',.24*v); }
+    else if(k==='top'){ [523,659,784,1047].forEach((f,i)=>tone(f,i*.09,.45,'triangle',.26*v)); tone(1568,.38,.9,'triangle',.22*v); tone(2093,.38,.9,'sine',.1*v); }
+    else if(k==='buzz'){ tone(98,0,.75,'square',.14*v); tone(104,0,.75,'sawtooth',.12*v); }
+    else if(k==='tick'){ tone(1760,0,.06,'square',.07*v); }
   }catch(e){}
 }
+function play(k){
+  if(!S.host || !SND.fx) return;
+  const a=SND.el[k];
+  if(a && SND.ok[k]){ const c=a.cloneNode(); c.loop=false; c.volume=SND.fvol; c.play().catch(()=>synth(k)); }
+  else synth(k);
+}
+document.addEventListener('pointerdown',()=>{
+  if(!S.host || SND.unlocked) return;
+  SND.unlocked=true; try{ AC = AC || new (window.AudioContext||window.webkitAudioContext)(); AC.resume(); }catch(e){}
+  updateMusic(true);
+});
 
 const SAMPLE=`Q: Magbigay ng pagkaing laging nasa handaan ng Pinoy
 Pancit = 32 (pansit, bihon, canton)
@@ -375,6 +444,7 @@ function startHost(){
   S.live = saved && saved.live ? {...BLANK, ...saved.live} : {...BLANK, gid:newId(), seconds:S.timer};
   S.answers = (saved && saved.answers) || {};
   saveHost();
+  sndLoad();
   openHostPeer(0);
   render();
 }
@@ -449,7 +519,7 @@ function lock(auto){
   for(const [u,d] of Object.entries(S.answers)){
     if(d && d.rid===r && d.answer){ subs[u]={n:d.name||'Player', a:d.answer}; names[u]=d.name||'Player'; }
   }
-  if(auto) sfx(false);
+  play('buzz');
   writeLive({phase:'reveal', subs, names});
 }
 function roundAnswers(ov){
@@ -465,11 +535,12 @@ function groupAnswers(){
 }
 function revealSlot(i){
   const q=curQ(); if(!q) return; const slots=S.live.slots.map(s=>({...s})); if(slots[i].t!=null) return;
-  const c=counts(); slots[i]={t:q.a[i].t, p:q.a[i].p*(S.live.x||1), c:c[i]}; sfx(true); writeLive({slots});
+  const c=counts(); slots[i]={t:q.a[i].t, p:q.a[i].p*(S.live.x||1), c:c[i]}; play(i===0?'top':'reveal'); writeLive({slots});
 }
 function revealAll(){
   const q=curQ(); if(!q) return; const c=counts();
-  const slots=q.a.map((a,i)=>({t:a.t, p:a.p*(S.live.x||1), c:c[i]})); sfx(true); writeLive({slots});
+  const firstHidden=S.live.slots[0] && S.live.slots[0].t==null;
+  const slots=q.a.map((a,i)=>({t:a.t, p:a.p*(S.live.x||1), c:c[i]})); play(firstHidden?'top':'reveal'); writeLive({slots});
 }
 function setOverride(us,m){
   const ov={...(S.live.ov||{})}; us.forEach(u=>{ ov[u]=m; });
@@ -563,7 +634,10 @@ function tick(){
   document.querySelectorAll('[data-timer]').forEach(el=>{ el.textContent=Math.ceil(rem); });
   document.querySelectorAll('[data-arc]').forEach(el=>{ el.style.strokeDashoffset = String(100 - (rem/sec)*100); });
   document.querySelectorAll('.timer').forEach(el=>el.classList.toggle('low', rem<=5));
-  if(S.host && S.live.phase==='answer' && (Date.now()-S.live.startedAt)/1000 > sec+1.5) lock(true);
+  if(S.host && S.live.phase==='answer'){
+    const s=Math.ceil(rem); if(s<=5 && s>0 && s!==S.lastTick){ S.lastTick=s; play('tick'); }
+    if((Date.now()-S.live.startedAt)/1000 > sec+1.5) lock(true);
+  }
 }
 function totals(){ const t={}, h=S.live.hist||{}; for(const r in h) for(const u in h[r]) t[u]=(t[u]||0)+h[r][u]; return t; }
 function ranking(){
@@ -605,7 +679,7 @@ function netNote(){
 function hostHeader(){
   const L=S.live, inGame=L.phase!=='lobby' && L.phase!=='final';
   return `<header class="bar"><div class="brand disp">Sabi ng Survey!</div><span class="hcode" title="Room code">${esc(S.code)}</span><div class="pill">${inGame?`Tanong ${L.qIndex+1} sa ${L.total}`:''}</div>
-  <div class="tools"><button class="ghost" data-act="editor">Mga tanong (${S.qs.length})</button><button class="ghost" data-act="reset">Bagong laro</button></div></header>${netNote()}`;
+  <div class="tools"><button class="ghost" data-act="sound" aria-label="Tunog at musika">${SND.music||SND.fx?'🔊':'🔇'} Tunog</button><button class="ghost" data-act="editor">Mga tanong (${S.qs.length})</button><button class="ghost" data-act="reset">Bagong laro</button></div></header>${netNote()}`;
 }
 function renderHost(){
   const L=S.live; let body='';
@@ -667,6 +741,7 @@ function renderHost(){
     </section>`;
   }
   app.innerHTML = hostHeader() + body;
+  updateMusic();
   flipFresh();
   const qr=$('#qr');
   if(qr && typeof QRCode!=='undefined'){ try{ new QRCode(qr,{text:joinUrl(), width:380, height:380, colorDark:'#0f1b5e', colorLight:'#fff6e3', correctLevel:QRCode.CorrectLevel.M}); }catch(e){ qr.remove(); } }
@@ -745,8 +820,39 @@ function updatePlayerBits(){
 }
 
 /* ---------- dialogs (host) ---------- */
+function soundStatus(k){
+  const st=SND.ok[k], isMusic=MUSIC_KEYS.includes(k);
+  if(st===true) return '<span class="okc">✓ Nahanap</span>';
+  if(st===false) return isMusic ? '<span class="hint">Wala (tahimik)</span>' : '<span class="hint">Wala, built-in na tunog ang gamit</span>';
+  return '<span class="hint">Hinahanap…</span>';
+}
+function refreshSoundDlg(){
+  if(!dlg.open || dlg.dataset.kind!=='sound') return;
+  Object.keys(SOUND_FILES).forEach(k=>{ const el=dlg.querySelector(`[data-st="${k}"]`); if(el) el.innerHTML=soundStatus(k); });
+}
+function openSound(){
+  dlg.className=''; dlg.dataset.kind='sound';
+  dlg.innerHTML=`<form class="dlg" method="dialog">
+    <h2 class="disp">Tunog at musika</h2>
+    <label class="srow2"><input type="checkbox" id="smus" ${SND.music?'checked':''}> Background music</label>
+    <label class="srow2">Lakas ng music <input type="range" id="smv" min="0" max="1" step="0.05" value="${SND.mvol}"></label>
+    <label class="srow2"><input type="checkbox" id="sfx" ${SND.fx?'checked':''}> Sound effects</label>
+    <label class="srow2">Lakas ng effects <input type="range" id="sfv" min="0" max="1" step="0.05" value="${SND.fvol}"></label>
+    <div class="row"><button type="button" class="ghost" data-t="reveal">Subukan: reveal</button><button type="button" class="ghost" data-t="top">#1 na sagot</button><button type="button" class="ghost" data-t="buzz">Buzzer</button></div>
+    <p class="hint">Ilagay ang mga file na ito sa parehong folder ng index.html. Puwedeng kulang ang ilan.</p>
+    <div class="flist">${Object.entries(SOUND_FILES).map(([k,f])=>`<div><code>${esc(f)}</code><span data-st="${k}">${soundStatus(k)}</span></div>`).join('')}</div>
+    <div class="row end"><button class="btn" value="ok">Tapos na</button></div>
+  </form>`;
+  const save=()=>{ lsSet('sns-music',SND.music?'1':'0'); lsSet('sns-fx',SND.fx?'1':'0'); lsSet('sns-mvol',String(SND.mvol)); lsSet('sns-fvol',String(SND.fvol)); };
+  $('#smus').onchange=e=>{ SND.music=e.target.checked; save(); SND.unlocked=true; updateMusic(true); if(!SND.music && SND.cur) { fadeTo(SND.el[SND.cur],0,300); SND.cur=null; } render(); };
+  $('#smv').oninput=e=>{ SND.mvol=+e.target.value; save(); const a=SND.cur&&SND.el[SND.cur]; if(a){ clearInterval(a._f); a.volume=SND.mvol; } };
+  $('#sfx').onchange=e=>{ SND.fx=e.target.checked; save(); render(); };
+  $('#sfv').oninput=e=>{ SND.fvol=+e.target.value; save(); };
+  dlg.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{ const was=SND.fx; SND.fx=true; play(b.dataset.t); SND.fx=was; });
+  dlg.showModal();
+}
 function openEditor(){
-  dlg.className='wide';
+  dlg.className='wide'; dlg.dataset.kind='';
   dlg.innerHTML=`<form class="dlg" method="dialog">
     <h2 class="disp">Mga tanong</h2>
     <p class="hint">Simulan ang bawat tanong sa <code>Q:</code>, tapos isang sagot bawat linya: <code>Sagot = puntos (ibang tawag, ibang spelling)</code>. Ang nasa panaklong ay tatanggapin ding tama. Lagyan ng <code>(x2)</code> ang tanong para doble puntos. Hanggang 8 sagot bawat tanong. Nakatago ang mga tanong sa device na ito lang.</p>
@@ -770,7 +876,7 @@ function openAssign(gi){
   const q=curQ(); if(!q) return;
   const gs=S.groups||groupAnswers(); const list = gi==null ? gs : [gs[gi]].filter(Boolean);
   const opts=m=>`<option value="-1" ${m<0?'selected':''}>Walang tumama</option>`+q.a.map((a,i)=>`<option value="${i}" ${m===i?'selected':''}>#${i+1} ${esc(a.t)}</option>`).join('');
-  dlg.className='';
+  dlg.className=''; dlg.dataset.kind='';
   dlg.innerHTML=`<form class="dlg" method="dialog">
     <h2 class="disp">Suriin ang mga sagot</h2>
     <p class="hint">Kung tama naman pero hindi nakilala ng laro, piliin kung saang sagot ito bibilang.</p>
@@ -781,7 +887,7 @@ function openAssign(gi){
   dlg.showModal();
 }
 function confirmReset(){
-  dlg.className='';
+  dlg.className=''; dlg.dataset.kind='';
   dlg.innerHTML=`<form class="dlg" method="dialog"><h2 class="disp">Bagong laro?</h2><p>Mabubura ang lahat ng score at babalik sa simula. Mananatili ang mga tanong, ang room code, at ang mga kasali.</p>
   <div class="row end"><button class="ghost" value="cancel">Huwag muna</button><button class="btn" value="ok" id="rs">Magsimula ulit</button></div></form>`;
   $('#rs').onclick=()=>resetGame();
@@ -794,7 +900,8 @@ app.addEventListener('click',e=>{
   const a=b.dataset.act;
   if(a==='rename'){ S.editingName=true; S.viewKey=''; render(); setTimeout(()=>{ const i=$('#nm'); i&&i.focus(); },0); return; }
   if(!S.host) return;
-  if(a==='editor') openEditor();
+  if(a==='sound') openSound();
+  else if(a==='editor') openEditor();
   else if(a==='reset') S.live.phase==='final' ? resetGame() : confirmReset();
   else if(a==='newcode') newRoomCode();
   else if(a==='start') startQ(0);
