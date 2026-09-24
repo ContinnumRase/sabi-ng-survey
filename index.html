@@ -700,7 +700,7 @@ function renderHost(){
     const r=rid(), ps=recentPlayers();
     const done=ps.filter(([u,d])=>d.rid===r && d.answer).length;
     body=`<section class="stage center">
-      <div class="qmeta">${L.x>1?'<span class="dbl disp">Doble puntos!</span>':''}</div>
+      <div class="qmeta">${L.x>1?'<span class="dbl disp">Double points!</span>':''}</div>
       <h2 class="question">${esc(L.question)}</h2>
       <div class="qrow">${timerHTML(true)}<p class="count"><b>${done}</b> sa ${ps.length} ang nakasagot na</p></div>
       <div class="chips">${ps.map(([u,d])=>`<span class="chip ${d.rid===r&&d.answer?'on':''}">${esc(d.name)}</span>`).join('')}</div>
@@ -711,7 +711,7 @@ function renderHost(){
     const gs=groupAnswers(), wrong=gs.filter(g=>g.m<0), total=Object.keys(L.subs||{}).length;
     S.groups=gs;
     body=`<section class="stage center">
-      <div class="qmeta">${L.x>1?'<span class="dbl disp">Doble puntos!</span>':''}</div>
+      <div class="qmeta">${L.x>1?'<span class="dbl disp">Double points!</span>':''}</div>
       <h2 class="question">${esc(L.question)}</h2>
       <p class="hint">${total} ang sumagot. Pindutin ang bawat kahon para buksan.</p>
       ${boardHTML(L.slots,true)}
@@ -781,7 +781,7 @@ function renderPlayer(){
     if(L.phase==='lobby'){
       body=head+`<div class="card"><p class="wait">${S.net==='ok'?'Nakasali ka na!':'Sandali lang…'}</p><p class="hint">Hintayin ang host na magsimula. Tingnan ang malaking screen.</p></div>`;
     } else if(L.phase==='answer'){
-      body=head+`<p class="qn">Tanong ${L.qIndex+1} sa ${L.total}${L.x>1?' (Doble puntos!)':''}</p>
+      body=head+`<p class="qn">Tanong ${L.qIndex+1} sa ${L.total}${L.x>1?' (Double points!)':''}</p>
         <div class="prow">${timerHTML(false)}<h2 class="question sm">${esc(L.question)}</h2></div>
         <form data-form="answer" class="phone" style="padding:0;gap:12px">
           <input id="ans" maxlength="60" autocomplete="off" autocapitalize="sentences" enterkeyhint="send" placeholder="I-type ang sagot mo" aria-label="Sagot mo">
